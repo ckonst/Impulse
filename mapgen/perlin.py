@@ -86,12 +86,12 @@ if __name__ == '__main__':
     import scipy.io.wavfile as wf
     import matplotlib.pyplot as plt
 
-    fs, input_sig = wf.read('test/ambedo.wav')
+    fs, input_sig = wf.read('./mapgen/test/perlin.wav')
     if input_sig.ndim > 1:
         input_sig = input_sig[:, 0] + input_sig[:, 1]
 
     onsets = od.superflux(fs, input_sig)
-    perlin_noise = generate(len(onsets), fs, 0.5, 6)
+    perlin_noise = generate(len(onsets), fs, 0.5, 6, f0=128)
 
     plt.figure()
     plt.vlines(onsets, 0, 1.0, color='black')

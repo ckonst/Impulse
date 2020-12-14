@@ -17,15 +17,17 @@ import os
 from tkinter import filedialog as fd
 import json
 
-BEATMAPS = '../beatmaps/'
+BEATMAPS = './beatmaps/'
 JSON = '/beatmap.json'
 FILE_EXT = '.mp3'
 FILE_TYPES = [('Audio Files', '.mp3 .wav .ogg .flac .m4a .wma .ape')]
 
-def generate(persistence=0.5, octaves=6):
+def generate(persistence=0.5, octaves=6, f0=128):
 
     # get the file path from the user
     file_path, file_type = file_dialog()
+    if not file_path or not file_type:
+        return None
     # get the signal from the file
     fs, input_sig, audio_seg = file_to_ndarray(file_path, file_type)
 
@@ -41,8 +43,8 @@ def generate(persistence=0.5, octaves=6):
 
     # generate the x and y locations of the beats
     n = len(onsets)
-    xs = perlin.generate(n, fs, persistence, octaves)
-    ys = perlin.generate(n, fs, persistence, octaves)
+    xs = perlin.generate(n, fs, persistence, octaves, f0=f0)
+    ys = perlin.generate(n, fs, persistence, octaves, f0=f0)
 
     basename = os.path.basename(file_path)
     folder_path, _ = os.path.splitext(basename)
@@ -51,8 +53,8 @@ def generate(persistence=0.5, octaves=6):
     beatmap_path = BEATMAPS + folder_path
     try:
         os.mkdir(beatmap_path)
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
     # write the file into the new folder, if it doesn't already exist.
     audio_path = f'{beatmap_path}/{basename}'
@@ -62,7 +64,8 @@ def generate(persistence=0.5, octaves=6):
 
     # write the beatmap data to a json file, overwriting if it already exists.
     json_path = beatmap_path + JSON
-    beatmap = {'onsets' : onsets.tolist(), 'xs' : xs.tolist(), 'ys' : ys.tolist()}
+    beatmap = {'name': folder_path, 'onsets' : onsets.tolist(),
+               'xs' : xs.tolist(), 'ys' : ys.tolist()}
     with open(json_path, 'w+') as outfile:
         json.dump(beatmap, outfile)
 
@@ -70,7 +73,10 @@ def generate(persistence=0.5, octaves=6):
 
 def file_dialog():
     """Open a file dialog to prompt the user to select an audio file."""
-    file_path = fd.askopenfilename(filetypes=FILE_TYPES)
+    try:
+        file_path = fd.askopenfilename(filetypes=FILE_TYPES)
+    except:
+        return None, None
     _, file_ext = os.path.splitext(file_path)
     return file_path, file_ext[1:]
 
