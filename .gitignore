@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#test files
+mapgen/test/
+
+#beat maps
+beatmaps/
