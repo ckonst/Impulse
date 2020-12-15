@@ -38,7 +38,6 @@ font = pg.font.Font(FONT_PATH, 48)
 
 BEATMAPS = './beatmaps/'
 
-
 class BeatMapManager():
     def __init__(self):
         self.beatmaps = {}
@@ -74,7 +73,8 @@ class BeatMapManager():
         path = f'{BEATMAPS}{name}/{name}'
         self.beatmaps[name] = Map(surface, bg_color, name, beatmap, font=font,
                                   bgi=None, bgm=f'{path}.mp3')
-        pg.event.post(pg.event.Event(events.BEATMAP_UPDATE_EVENT, event_name=name))
+        pg.event.post(pg.event.Event(events.BEATMAP_UPDATE_EVENT,
+                                     event_name=name, beatmap=self.beatmaps[name]))
 
 beat_manager = BeatMapManager()
 
@@ -97,6 +97,7 @@ while running:
                 break
             elif e.type == events.BEATMAP_UPDATE_EVENT:
                 manager.scenes[e.event_name] = beat_manager.beatmaps[e.event_name]
+                manager.current_scene.handle_event(e)
             elif e.type == events.SCENE_CHANGE_EVENT:
                 manager.current_scene = manager.scenes[e.event_name]
             else:

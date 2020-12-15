@@ -10,7 +10,6 @@ from scene import Scene, Button
 from pygame import mixer
 import events
 
-
 class MapSelect(Scene):
     def __init__(self, surface, color, beat_manager, font=None, bgi=None, bgm=None):
         super().__init__(surface, color, font=font, bgi=bgi, bgm=bgm)
@@ -20,21 +19,21 @@ class MapSelect(Scene):
                        'hover': (0x8E,0xBA,0xC8),
                        'press': (0x79,0x8A,0x8F)
                        }
-        w = 800
-        h = 100
-        x = self.width // 2 - w // 2
-        y = self.height // 2 - h // 1.5
+        self.w = 800
+        self.h = 100
+        x = self.width // 2 - self.w // 2
+        y = self.height // 2 - self.h // 1.5
         keys = self.beatmaps.keys()
         self.menu_items = [
             Button(name, self.surface,
                    {'onclick': self.play_map},
-                   x, y + 150*i, w, h, self.colors, font=font, song=True)
+                   x, y + 150*i, self.w, self.h, self.colors, font=font, song=True)
             for i, name in enumerate(keys)
             ]
         gen = self.beat_manager.generate_beatmap
         self.menu_items.append(Button('Import', self.surface,
                                       {'onclick': lambda: gen()},
-                   0, 0, w/2, h, self.colors, font=self.font, movable=False))
+                   0, 0, self.w/2, self.h, self.colors, font=self.font, movable=False))
         self.menuback = mixer.Sound('assets/audio/menuback.wav')
 
     def update(self):
@@ -57,14 +56,12 @@ class MapSelect(Scene):
                 if button.movable:
                     button.dy = e.y * 15
         elif e.type == events.BEATMAP_UPDATE_EVENT:
-            self.beatmaps = self.beat_manager.beatmaps
-            w = 600
-            h = 100
-            x = self.width // 2 - w // 2
-            y = self.height // 2 - h // 1.5
+            self.beatmaps[e.event_name] = e.beatmap
+            x = self.width // 2 - self.w // 2
+            y = self.height // 2 - self.h // 1.5
             self.menu_items.append(Button(e.event_name, self.surface,
                    {'onclick': self.play_map},
-                   x, y + 150*(len(self.menu_items)-1), w, h, self.colors, font=self.font, song=True))
+                   x, y + 150*(len(self.menu_items) - 1), self.w, self.h, self.colors, font=self.font, song=True))
         else:
             for button in self.menu_items:
                     button.handle_event(e)

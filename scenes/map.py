@@ -19,18 +19,20 @@ class Map(Scene):
         self.beatmap = beatmap
         self.beats = beatmap['onsets']
         w, h = surface.get_size()
-        self.xs = map(lambda x: round((x + 1) / 2 * w), beatmap['xs'])
-        self.ys = map(lambda y: round((y + 1) / 2 * h), beatmap['ys'])
+
+        self.xs = map(lambda x: round((x + 1) / 2 * (w - 30)), beatmap['xs'])
+        self.ys = map(lambda y: round((y + 1) / 2 * (h - 30)), beatmap['ys'])
         self.bmr = self._beatmap_reader()
         self.finished = False
         self.clock = time.Clock()
-        self.c_x = 0 # current x position
-        self.c_y = 0 # current y position
+        self.c_x = self.beatmap['xs'][0] # current x position
+        self.c_y = self.beatmap['ys'][0] # current y position
         self.c_beat = self.beats[0] # current beat in seconds
         self.buttons = [] # current buttons on screen
         self.counter = 0 # counter for button text
+        self.last_note = 0 # last number note hit
         self.time = -3
-        self.error = 0.01
+        self.error = 0.05
         self.score = 0
         self.combo = 0
         self.total_misses = 0
@@ -38,11 +40,17 @@ class Map(Scene):
         self.circlehit = mixer.Sound('./assets/audio/circlehit.mp3')
         self.circlehit.set_volume(0.5)
         self.menuback = mixer.Sound('assets/audio/menuback.wav')
+        self.waiting = False
+        self.holding = False
 
     def update(self):
         if not mixer.music.get_busy() and not self.finished:
-            if (self.time >= -1):
+            if (self.time >= 0):
                 mixer.music.play()
+
+        if self.finished:
+            self.reset()
+            self.change_scene('map_select')
 
         self.clock.tick()
         self.time += self.clock.get_rawtime() / 1000 # get time in seconds.
@@ -51,16 +59,17 @@ class Map(Scene):
         low = self.c_beat - self.error
         high = self.c_beat + self.error
 
-        if self.time >= low and self.time <= high:
+        if not self.waiting:
             try:
                 self.c_beat, self.c_x, self.c_y = next(self.bmr)
             except StopIteration:
                 self.finished = True
-            if not self.finished:
-                self._produce_beat(self.c_x, self.c_y)
-
-        if self.finished:
-            self.change_scene('title')
+                print(True)
+        if self.time >= low and self.time <= high:
+            self._produce_beat(self.c_x, self.c_y)
+            self.waiting = False
+        else:
+            self.waiting = True
 
         for button in self.buttons:
             button.update()
@@ -71,40 +80,58 @@ class Map(Scene):
         for button in self.buttons:
             button.render()
         self.surface.blit(self.font.render(
-            f'total: {self.score}', False, (0,0,0)),
-            (1000, 20))
+            f'SCORE: {self.score}', False, (0,0,0)),
+            (self.width//2.35, 20))
         self.surface.blit(self.font.render(
-            f'{self.combo}x', False, (0,0,0)),
+            f'{self.combo}X', False, (0,0,0)),
             (20, 1000))
+        self.surface.blit(self.font.render(
+            f'MISS: {self.total_misses}', False, (0,0,0)),
+            (1700, 1000))
 
     def handle_event(self, e):
         if e.type == events.COMBO_BREAK_EVENT:
             self.combo = 0
             self.total_misses += 1
+            self.last_note = (self.last_note % 8) + 1
             if self.total_misses >= self.failure_condition:
-                self.score = 0
-                self.total_misses += 1
+                self.reset()
                 self.change_scene('map_select')
         elif e.type == pg.KEYDOWN:
             if e.key == pg.K_ESCAPE:
-                self.combo = 0
-                self.score = 0
-                self.total_misses = 0
+                self.reset()
                 self.menuback.play()
-                mixer.music.stop()
                 self.change_scene('map_select')
             elif e.key == pg.K_r:
                 self.restart()
-            else:
+            elif not self.holding:
                 for button in self.buttons:
                     button.handle_event(e)
+                self.holding = True
+        elif e.type == pg.KEYUP:
+            self.holding = False
 
-
-    def restart(self):
+    def reset(self):
+        self.c_x = self.beatmap['xs'][0] # current x position
+        self.c_y = self.beatmap['ys'][0] # current y position
+        self.c_beat = self.beats[0] # current beat in seconds
+        self.buttons = [] # current buttons on screen
+        w, h = self.surface.get_size()
+        self.xs = map(lambda x: round((x + 1) / 2 * w), self.beatmap['xs'])
+        self.ys = map(lambda y: round((y + 1) / 2 * h), self.beatmap['ys'])
+        self.counter = 0 # counter for button text
+        self.time = -3
+        self.score = 0
+        self.combo = 0
+        self.total_misses = 0
+        self.waiting = True
+        self.last_note = 1 # last number note hit
         for _ in self.bmr:
             pass
         self.bmr = self._beatmap_reader()
-        self.buttons = []
+
+    def restart(self):
+        self.reset()
         mixer.music.rewind()
 
     def _beatmap_reader(self):
@@ -118,29 +145,31 @@ class Map(Scene):
                         {'onclick': lambda x: self.hit(x)},
                         self.c_x - w // 2, self.c_y - h // 2,
                         w, h, None, img=self.img, font=self.font,
-                        disappear_after=0.5)
+                        disappear_after=0.6, num=self.counter)
         self.buttons.append(button)
 
     def hit(self, circle_button):
+        if not circle_button.num == self.last_note + 1:
+            return
         self.circlehit.play()
         self.combo += 1
         self.score += 300 * self.combo
+        self.last_note = (self.last_note + 1) % 8
         circle_button.visible = False
         self.buttons = [button for button in self.buttons if button is not circle_button]
 
-
-
 class CircleButton(Button):
     def __init__(self, text, surface, action, x, y, w, h, colors,
-                 img=None, font=None, movable=True, disappear_after=0):
+                 img=None, font=None, movable=True, disappear_after=0, num=1):
         super().__init__(text, surface, action, x, y, w, h, colors,
-            img=img, font=font, movable=movable)
+                         img=img, font=font, movable=movable)
         self.disappear_after = disappear_after
         self.clock = time.Clock()
         self.time = 0
         self.visible = True
         self.center = (self.x + self.w/2, self.y + self.h/2)
         self.c_radius = self.w
+        self.num = num
 
     def update(self):
         self.clock.tick()
@@ -156,12 +185,12 @@ class CircleButton(Button):
     def render(self):
         if self.visible:
             w, h = self.font.size(self.text)
-            self.c_radius /= 1.004
+            self.c_radius /= 1.00325
             pg.draw.circle(self.surface, 0xffffff, self.center, self.c_radius, width=10)
             self.surface.blit(self.img, (self.x,self.y))
             self.surface.blit(self.font.render(
             self.text, False, (0,0,0)),
-            self.center)
+            (self.x + self.w/2 - w/2, self.y + self.h/2 - h/2))
 
     def handle_event(self, e):
         if e.key == pg.K_z or pg.K_x:
