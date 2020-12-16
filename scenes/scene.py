@@ -40,8 +40,10 @@ class SceneManager():
     def __init__(self, scenes, current_scene):
         self.scenes = scenes
         self.current_scene = current_scene
+
     def update(self):
         self.current_scene.update()
+
     def render(self):
         self.current_scene.render()
 

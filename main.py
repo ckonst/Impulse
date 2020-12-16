@@ -39,7 +39,8 @@ font = pg.font.Font(FONT_PATH, 48)
 BEATMAPS = './beatmaps/'
 
 class BeatMapManager():
-    def __init__(self):
+    def __init__(self, clock):
+        self.clock = clock
         self.beatmaps = {}
         self.load_maps()
 
@@ -55,8 +56,9 @@ class BeatMapManager():
                 img = f'{path}.png'
             else:
                 img = None
-            self.beatmaps[name] = Map(surface, bg_color, name, beatmap, font=font,
-                                  bgi=img, bgm=f'{path}.mp3')
+            self.beatmaps[name] = Map(surface, bg_color, name, beatmap,
+                                      self.clock, font=font, bgi=img,
+                                      bgm=f'{path}.mp3')
 
     def load_map(self, name):
         audio_path = self.beatmaps[name].bgm
@@ -71,12 +73,12 @@ class BeatMapManager():
             return False
         name = beatmap['name']
         path = f'{BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(surface, bg_color, name, beatmap, font=font,
+        self.beatmaps[name] = Map(surface, bg_color, name, beatmap, self.clock, font=font,
                                   bgi=None, bgm=f'{path}.mp3')
         pg.event.post(pg.event.Event(events.BEATMAP_UPDATE_EVENT,
                                      event_name=name, beatmap=self.beatmaps[name]))
-
-beat_manager = BeatMapManager()
+clock = pg.time.Clock()
+beat_manager = BeatMapManager(clock)
 
 scenes = {'title': Title(surface, bg_color, font=font),
           'settings': Settings(surface, bg_color, font=font),
@@ -106,7 +108,8 @@ while running:
         manager.update()
         manager.render()
         render_cursor()
-        pg.display.flip()
+        pg.display.update()
+        clock.tick(240)
     except KeyboardInterrupt:
         break
 pg.quit()
