@@ -27,7 +27,7 @@ class Settings(Scene):
         self.surface.blit(self.font.render(
                 'Settings', False, (0,0,0)),
                 (self.width/2, self.height/6))
-        pg.display.flip()
+        #pg.display.flip()
 
     def handle_event(self, e):
         if e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:

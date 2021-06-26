@@ -8,7 +8,7 @@ Created on Sat Dec 12 21:43:30 2020
 import pygame as pg
 from scene import Scene, Button
 from pygame import mixer
-import events
+from event import Event
 
 class MapSelect(Scene):
     def __init__(self, surface, color, beat_manager, font=None, bgi=None, bgm=None):
@@ -32,7 +32,7 @@ class MapSelect(Scene):
             ]
         gen = self.beat_manager.generate_beatmap
         self.menu_items.append(Button('Import', self.surface,
-                                      {'onclick': lambda: gen()},
+                                     {'onclick': lambda: gen()},
                    0, 0, self.w/2, self.h, self.colors, font=self.font, movable=False))
         self.menuback = mixer.Sound('assets/audio/menuback.wav')
 
@@ -49,22 +49,25 @@ class MapSelect(Scene):
 
     def handle_event(self, e):
         if e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
+            # go back
             self.menuback.play()
             self.change_scene('title')
         elif e.type == pg.MOUSEWHEEL:
+            # scroll
             for button in self.menu_items:
                 if button.movable:
                     button.dy = e.y * 15
-        elif e.type == events.BEATMAP_UPDATE_EVENT:
+        elif e.type == Event.BEATMAP_UPDATE_EVENT:
+            # play map
             self.beatmaps[e.event_name] = e.beatmap
             x = self.width // 2 - self.w // 2
             y = self.height // 2 - self.h // 1.5
             self.menu_items.append(Button(e.event_name, self.surface,
-                   {'onclick': self.play_map},
-                   x, y + 150*(len(self.menu_items) - 1), self.w, self.h, self.colors, font=self.font, song=True))
+                {'onclick': self.play_map},
+                x, y + 150*(len(self.menu_items) - 1), self.w, self.h, self.colors, font=self.font, song=True))
         else:
             for button in self.menu_items:
-                    button.handle_event(e)
+                button.handle_event(e)
 
     def play_map(self, name):
         self.beat_manager.load_map(name)

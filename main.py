@@ -6,110 +6,60 @@ Created on Tue Dec  8 22:13:05 2020
 """
 
 import pygame as pg
-from scenes.map import Map
+from beatmap import BeatMapManager
 from scenes.scene import SceneManager
 from scenes.title import Title
 from scenes.settings import Settings
 from scenes.map_select import MapSelect
-import events
-from mapgen import mapgen
-import os
-import json
+from event import Event
 
-pg.init() # init everything
+def main():
+    pg.init() # init everything
 
-# display stuff
-width = 1920
-height = 1080
-surface = pg.display.set_mode([width, height])
-surface.convert()
-bg_color = 0x343B3D
-cursor = pg.image.load('./assets/img/cursor.png')
-pg.mouse.set_visible(False)
+    # display stuff
+    width = 1920
+    height = 1080
+    surface = pg.display.set_mode([width, height])
+    surface.convert()
+    bg_color = 0x343B3D
+    cursor = pg.image.load('./assets/img/cursor.png')
+    pg.mouse.set_visible(False)
 
-def render_cursor():
-    x, y = pg.mouse.get_pos()
-    w, h = cursor.get_size()
-    surface.blit(cursor, (x - w // 2, y - w // 2))
+    FONT_PATH = './assets/fonts/Gidole-Regular.otf'
+    font = pg.font.Font(FONT_PATH, 48)
+    clock = pg.time.Clock()
+    beat_manager = BeatMapManager(clock, surface, bg_color, font)
 
-# font stuff
-FONT_PATH = './assets/fonts/Gidole-Regular.otf'
-font = pg.font.Font(FONT_PATH, 48)
+    scenes = {'title': Title(surface, bg_color, font=font),
+            'settings': Settings(surface, bg_color, font=font),
+            'map_select': MapSelect(surface, bg_color, beat_manager, font=font),
+            **beat_manager.beatmaps}
 
-BEATMAPS = './beatmaps/'
+    manager = SceneManager(scenes, scenes['title'], surface, cursor)
 
-class BeatMapManager():
-    def __init__(self, clock):
-        self.clock = clock
-        self.beatmaps = {}
-        self.load_maps()
+    running = True
 
-    def load_maps(self):
-        folders = os.listdir(BEATMAPS)
-        for name in folders:
-            path = f'{BEATMAPS}{name}/{name}'
-            with open(f'{BEATMAPS}{name}/beatmap.json') as f:
-                beatmap = json.load(f)
-            if os.path.exists(f'{path}.jpg'):
-                img = f'{path}.jpg'
-            elif os.path.exists(f'{path}.png'):
-                img = f'{path}.png'
-            else:
-                img = None
-            self.beatmaps[name] = Map(surface, bg_color, name, beatmap,
-                                      self.clock, font=font, bgi=img,
-                                      bgm=f'{path}.mp3')
-
-    def load_map(self, name):
-        audio_path = self.beatmaps[name].bgm
-        pg.mixer.music.load(audio_path)
-        img_path = self.beatmaps[name].bgi
-        if img_path:
-            pg.image.load(img_path)
-
-    def generate_beatmap(self):
-        beatmap = mapgen.generate()
-        if not beatmap:
-            return False
-        name = beatmap['name']
-        path = f'{BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(surface, bg_color, name, beatmap, self.clock, font=font,
-                                  bgi=None, bgm=f'{path}.mp3')
-        pg.event.post(pg.event.Event(events.BEATMAP_UPDATE_EVENT,
-                                     event_name=name, beatmap=self.beatmaps[name]))
-clock = pg.time.Clock()
-beat_manager = BeatMapManager(clock)
-
-scenes = {'title': Title(surface, bg_color, font=font),
-          'settings': Settings(surface, bg_color, font=font),
-          'map_select': MapSelect(surface, bg_color, beat_manager, font=font),
-          **beat_manager.beatmaps}
-
-manager = SceneManager(scenes, scenes['title'])
-
-running = True
-
-#%% GAME LOOP
-
-while running:
-    try:
+    while running:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 running = False
                 break
-            elif e.type == events.BEATMAP_UPDATE_EVENT:
+            elif e.type == Event.BEATMAP_UPDATE_EVENT:
                 manager.scenes[e.event_name] = beat_manager.beatmaps[e.event_name]
                 manager.current_scene.handle_event(e)
-            elif e.type == events.SCENE_CHANGE_EVENT:
+            elif e.type == Event.SCENE_CHANGE_EVENT:
                 manager.current_scene = manager.scenes[e.event_name]
             else:
                 manager.current_scene.handle_event(e)
-
         manager.update()
         manager.render()
-        render_cursor()
         pg.display.update()
         clock.tick(240)
+
+if __name__ == '__main__':
+    try:
+        main()
     except KeyboardInterrupt:
-        break
-pg.quit()
+        pass
+    finally:
+        pg.quit()

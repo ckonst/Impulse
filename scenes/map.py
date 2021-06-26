@@ -9,7 +9,7 @@ import pygame as pg
 from pygame import mixer
 from scene import Scene, Button
 from pygame import time
-import events
+from event import Event
 
 class Map(Scene):
     def __init__(self, surface, color, name, beatmap, game_clock, font=None, bgi=None, bgm=None):
@@ -34,7 +34,7 @@ class Map(Scene):
         self.last_note = 0 # last number note hit
         self.time = -3
         self.error = 0.005
-        self.offset = 1.0
+        self.offset = 0.5
         self.score = 0
         self.combo = 0
         self.total_misses = 0
@@ -59,11 +59,7 @@ class Map(Scene):
 
         low = self.c_beat - self.error - self.offset
         high = self.c_beat + self.error - self.offset
-        '''
-        print( low)
-        print( high)
-        print( self.c_beat)
-        '''
+        
         if not self.waiting:
             try:
                 self.c_beat, self.c_x, self.c_y = next(self.bmr)
@@ -94,7 +90,7 @@ class Map(Scene):
             (1700, 1000))
 
     def handle_event(self, e):
-        if e.type == events.COMBO_BREAK_EVENT:
+        if e.type == Event.COMBO_BREAK_EVENT:
             self.combo = 0
             self.total_misses += 1
             self.last_note = (self.last_note % 8) + 1
@@ -123,12 +119,15 @@ class Map(Scene):
         w, h = self.surface.get_size()
         self.xs = map(lambda x: round((x + 1) / 2 * w), self.beatmap['xs'])
         self.ys = map(lambda y: round((y + 1) / 2 * h), self.beatmap['ys'])
+        self.clock = time.Clock()
+        self.finished = False
         self.counter = 0 # counter for button text
-        self.time = 0
+        self.time = -3
         self.score = 0
         self.combo = 0
         self.total_misses = 0
-        self.waiting = True
+        self.waiting = False
+        self.holding = False
         self.last_note = 1 # last number note hit
         for _ in self.bmr:
             pass
@@ -148,7 +147,8 @@ class Map(Scene):
         button = CircleButton(str(self.counter), self.surface,
                         {'onclick': lambda x: self.hit(x)},
                         self.c_x - w // 2, self.c_y - h // 2,
-                        w, h, self.time, self.c_beat, self.game_clock, img=self.img, font=self.font,
+                        w, h, self.time, self.c_beat, self.game_clock,
+                        img=self.img, font=self.font,
                         disappear_after=0.5, num=self.counter)
         self.buttons.insert(0, button)
 
@@ -188,7 +188,7 @@ class CircleButton(Button):
         self.time += self.clock.get_time() / 1000 # get time in seconds.
         if self.time >= self.onset + self.disappear_after:
             self.visible = False
-            combo_break_event = pg.event.Event(events.COMBO_BREAK_EVENT)
+            combo_break_event = pg.event.Event(Event.COMBO_BREAK_EVENT)
             pg.event.post(combo_break_event)
 
     def render(self):
@@ -208,10 +208,5 @@ class CircleButton(Button):
             if self.hovering:
                 low = self.onset - self.tolerance
                 high = self.onset + self.tolerance
-                '''
-                print(f'low : {low}')
-                print(f'high : {high}')
-                print(f'time : {self.time}')
-                '''
                 if self.time >= low and self.time <= high:
                     self.action['onclick'](self)

@@ -6,7 +6,7 @@ Created on Sat Dec 12 22:50:24 2020
 """
 
 import pygame as pg
-import events
+from event import Event
 from pygame import mixer
 
 class Scene():
@@ -32,20 +32,28 @@ class Scene():
         pg.event.post(pg.event.Event(pg.QUIT))
 
     def change_scene(self, name):
-        scene_change_event = pg.event.Event(events.SCENE_CHANGE_EVENT,
+        scene_change_event = pg.event.Event(Event.SCENE_CHANGE_EVENT,
                                             event_name=name)
         pg.event.post(scene_change_event)
-
+    
 class SceneManager():
-    def __init__(self, scenes, current_scene):
+    def __init__(self, scenes, current_scene, surface, cursor):
         self.scenes = scenes
         self.current_scene = current_scene
+        self.surface = surface
+        self.cursor = cursor
 
     def update(self):
         self.current_scene.update()
 
     def render(self):
         self.current_scene.render()
+        self.render_cursor()
+
+    def render_cursor(self):
+        x, y = pg.mouse.get_pos()
+        w, h = self.cursor.get_size()
+        self.surface.blit(self.cursor, (x - w // 2, y - w // 2))
 
 class Button():
     def __init__(self, text, surface, action, x, y, w, h, colors,
@@ -90,33 +98,23 @@ class Button():
             (self.x + self.w/2 - w/2,self.y + self.h/2 - h/2))
 
     def handle_event(self, e):
-        if e.type == pg.MOUSEBUTTONDOWN:
+        if e.type == pg.MOUSEBUTTONUP and e.button == 1:
             if self.hovering:
-                self.state = 'press'
-            else:
-                self.state = 'idle'
-        elif e.type == pg.MOUSEBUTTONUP:
-            if self.hovering:
-                if self.state == 'press':
-                    self.state = 'idle'
-                    self.menuhit.play()
-                    if not self.song:
-                        self.action['onclick']()
-                    else:
-                        self.action['onclick'](self.text)
+                self.menuhit.play()
+                if not self.song:
+                    self.action['onclick']()
                 else:
-                    self.state = 'hover'
-            else:
-                self.state = 'idle'
-        elif self.hovering:
-            self.state = 'hover'
-        else:
-            self.state = 'idle'
+                    self.action['onclick'](self.text)
 
     def check_hovering(self):
         x, y = pg.mouse.get_pos()
         if x >= self.x and x <= self.x2 and y >= self.y and y <= self.y2:
             self.hovering = True
+            if pg.mouse.get_pressed()[0]:
+                self.state = 'press'
+            else:
+                self.state = 'hover'
         else:
             self.hovering = False
+            self.state = 'idle'
 

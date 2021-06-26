@@ -26,10 +26,10 @@ def superflux(fs, input_sig):
     # use the log MFC for superflux onset detection
     # superflux function
     odf_sf = lb.onset.onset_strength(S=lmfs, sr=fs,
-                                         hop_length=stride,
-                                         lag=lag, max_size=max_size)
+                                        hop_length=stride,
+                                        lag=lag, max_size=max_size)
     onset_sf = lb.onset.onset_detect(onset_envelope=odf_sf,
-                                      sr=fs,
-                                      hop_length=stride,
-                                      units='time')
+                                        sr=fs,
+                                        hop_length=stride,
+                                        units='time')
     return onset_sf
