@@ -52,7 +52,7 @@ class SceneManager():
 
     def render_cursor(self):
         x, y = pg.mouse.get_pos()
-        w, h = self.cursor.get_size()
+        w, _ = self.cursor.get_size()
         self.surface.blit(self.cursor, (x - w // 2, y - w // 2))
 
 class Button():
@@ -117,4 +117,3 @@ class Button():
         else:
             self.hovering = False
             self.state = 'idle'
-

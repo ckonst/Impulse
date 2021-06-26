@@ -44,7 +44,7 @@ class BeatMapManager():
             return False
         name = beatmap['name']
         path = f'{self.BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(surface, bg_color, name, beatmap, self.clock, font=font,
+        self.beatmaps[name] = Map(self.surface, self.bg_color, name, beatmap, self.clock, font=self.font,
                                   bgi=None, bgm=f'{path}.mp3')
         pg.event.post(pg.event.Event(Event.BEATMAP_UPDATE_EVENT,
                                      event_name=name, beatmap=self.beatmaps[name]))
