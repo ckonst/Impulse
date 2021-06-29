@@ -21,7 +21,7 @@ def main():
     height = 1080
     surface = pg.display.set_mode([width, height])
     surface.convert()
-    bg_color = 0x343B3D
+    bg_color = 0x464f53
     cursor = pg.image.load('./assets/img/cursor.png')
     pg.mouse.set_visible(False)
 

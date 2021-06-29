@@ -14,16 +14,16 @@ from pydub import AudioSegment
 
 # file I/O
 import os
-from tkinter import filedialog as fd
+from tkinter import Tk
+from tkinter import filedialog
 import json
 
-BEATMAPS = './beatmaps/'
-JSON = '/beatmap.json'
-FILE_EXT = '.mp3'
-FILE_TYPES = [('Audio Files', '.mp3 .wav .ogg .flac .m4a .wma .ape')]
+#TODO: fix crash with filenames ending with a '.'
 
 def generate(persistence=0.5, octaves=6, f0=128):
-
+    BEATMAPS = './beatmaps/'
+    FILE_EXT = '.mp3'
+    JSON = '/beatmap.json'
     # get the file path from the user
     file_path, file_type = file_dialog()
     if not file_path or not file_type:
@@ -73,9 +73,11 @@ def generate(persistence=0.5, octaves=6, f0=128):
 
 def file_dialog():
     """Open a file dialog to prompt the user to select an audio file."""
+    FILE_TYPES = [('Audio Files', '.mp3 .wav .ogg .flac .m4a .wma .ape')]
+    Tk().withdraw()
     try:
-        file_path = fd.askopenfilename(filetypes=FILE_TYPES)
-    except:
+        file_path = filedialog.askopenfilename(filetypes=FILE_TYPES)
+    except FileNotFoundError:
         return None, None
     _, file_ext = os.path.splitext(file_path)
     return file_path, file_ext[1:]
@@ -105,8 +107,3 @@ def stereo_to_mono(input_sig):
 
 def to_float32(input_sig):
     return input_sig.astype(np.float32)
-
-#%%
-
-if __name__ == '__main__':
-    generate()

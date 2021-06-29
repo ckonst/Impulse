@@ -128,8 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#test files
-mapgen/test/
+# vscode settings
+.vscode/
 
-#beat maps
-beatmaps/
+# libav
+libav/
