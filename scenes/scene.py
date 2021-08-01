@@ -48,9 +48,9 @@ class SceneManager():
 
     def render(self):
         self.current_scene.render()
-        self.render_cursor()
+        self._render_cursor()
 
-    def render_cursor(self):
+    def _render_cursor(self):
         x, y = pg.mouse.get_pos()
         w, _ = self.cursor.get_size()
         self.surface.blit(self.cursor, (x - w // 2, y - w // 2))
@@ -72,7 +72,7 @@ class Button():
         self.state = 'idle'
         self.img = img
         self.font = font
-        if not font:
+        if font is None:
             self.font = pg.font.SysFont('Comic Sans MS', 30)
         self.movable = movable
         self.hovering = False
@@ -95,7 +95,7 @@ class Button():
         pg.Surface.fill(self.surface, self.colors[self.state], self.shape)
         self.surface.blit(self.font.render(
             self.text, False, (0,0,0)),
-            (self.x + self.w/2 - w/2,self.y + self.h/2 - h/2))
+            (self.x + self.w/2 - w/2, self.y + self.h/2 - h/2))
 
     def handle_event(self, e):
         if e.type == pg.MOUSEBUTTONUP and e.button == 1:

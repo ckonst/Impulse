@@ -29,7 +29,7 @@ class MapSelect(Scene):
                    {'onclick': self.play_map},
                    x, y + 150*i, self.w, self.h, self.colors, font=font, song=True)
             for i, name in enumerate(keys)
-            ]
+        ]
         gen = self.beat_manager.generate_beatmap
         self.menu_items.append(Button('Import', self.surface,
                                      {'onclick': lambda: gen()},
@@ -56,15 +56,12 @@ class MapSelect(Scene):
             # scroll
             for button in self.menu_items:
                 if button.movable:
+                    pg.time.wait(1)
                     button.dy = e.y * 15
         elif e.type == Event.BEATMAP_UPDATE_EVENT:
             # play map
-            self.beatmaps[e.event_name] = e.beatmap
-            x = self.width // 2 - self.w // 2
-            y = self.height // 2 - self.h // 1.5
-            self.menu_items.append(Button(e.event_name, self.surface,
-                {'onclick': self.play_map},
-                x, y + 150*(len(self.menu_items) - 1), self.w, self.h, self.colors, font=self.font, song=True))
+            self.beatmaps.update({e.event_name: e.beatmap})
+            self.play_map()
         else:
             for button in self.menu_items:
                 button.handle_event(e)

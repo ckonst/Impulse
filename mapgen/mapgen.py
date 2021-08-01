@@ -6,7 +6,7 @@ Created on Fri Dec 11 02:39:54 2020
 """
 # beatmap generation
 import perlin
-import onset_detect as od
+from onset_detect import superflux
 
 # audio stuff
 import numpy as np
@@ -18,7 +18,7 @@ from tkinter import Tk
 from tkinter import filedialog
 import json
 
-#TODO: fix crash with filenames ending with a '.'
+#FIXME: crashes when filename ends with a '.'
 
 def generate(persistence=0.5, octaves=6, f0=128):
     BEATMAPS = './beatmaps/'
@@ -32,14 +32,10 @@ def generate(persistence=0.5, octaves=6, f0=128):
     fs, input_sig, audio_seg = file_to_ndarray(file_path, file_type)
 
     # If the user selected a stereo file (most likely), then store a mono version.
-    mono_sig = None
-    if input_sig.ndim > 1:
-        mono_sig = stereo_to_mono(input_sig)
-    else:
-        mono_sig = input_sig
+    mono_sig = stereo_to_mono(input_sig) if input_sig.ndim > 1 else input_sig
 
     # generate the onsets
-    onsets = od.superflux(fs, to_float32(mono_sig))
+    onsets = superflux(fs, to_float32(mono_sig))
 
     # generate the x and y locations of the beats
     n = len(onsets)

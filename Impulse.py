@@ -45,7 +45,7 @@ def main():
                 running = False
                 break
             elif e.type == Event.BEATMAP_UPDATE_EVENT:
-                manager.scenes[e.event_name] = beat_manager.beatmaps[e.event_name]
+                manager.scenes.update(beat_manager.beatmaps)
                 manager.current_scene.handle_event(e)
             elif e.type == Event.SCENE_CHANGE_EVENT:
                 manager.current_scene = manager.scenes[e.event_name]

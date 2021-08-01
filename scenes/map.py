@@ -111,6 +111,7 @@ class Map(Scene):
         elif e.type == pg.KEYUP:
             self.holding = False
 
+# TODO: Remove this method in favor of simply reconstructing the object
     def reset(self):
         self.c_x = self.beatmap['xs'][0] # current x position
         self.c_y = self.beatmap['ys'][0] # current y position
