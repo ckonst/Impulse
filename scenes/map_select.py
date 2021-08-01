@@ -61,7 +61,7 @@ class MapSelect(Scene):
         elif e.type == Event.BEATMAP_UPDATE_EVENT:
             # play map
             self.beatmaps.update({e.event_name: e.beatmap})
-            self.play_map()
+            self.play_map(e.event_name)
         else:
             for button in self.menu_items:
                 button.handle_event(e)

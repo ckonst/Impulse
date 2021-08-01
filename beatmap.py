@@ -41,13 +41,13 @@ class BeatMapManager():
             pg.image.load(img_path)
 
     def generate_beatmap(self):
-        """Generate a beatmap, called when a button's onclick action is called in Map Select"""
+        """Generate a beatmap, called when a button's onclick action is called in Map Select."""
         beatmap = mapgen.generate()
         if beatmap is None:
             return False
         name = beatmap['name']
         path = f'{self.BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(self.surface, self.bg_color, name, beatmap, 
+        self.beatmaps[name] = Map(self.surface, self.bg_color, name, beatmap,
                                   self.clock, font=self.font,
                                   bgi=None, bgm=f'{path}.mp3')
         pg.event.post(pg.event.Event(Event.BEATMAP_UPDATE_EVENT,
