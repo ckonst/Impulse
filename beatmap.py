@@ -1,9 +1,11 @@
-import os
-import json
-from scenes.map import Map
 import pygame as pg
+
+import json
+import os
+
 from mapgen import mapgen
-from event import Event
+from events import Event
+from scenes.map import Map
 
 class BeatMapManager():
     def __init__(self, clock, surface, bg_color, font):

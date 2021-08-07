@@ -6,12 +6,14 @@ Created on Tue Dec  8 22:13:05 2020
 """
 
 import pygame as pg
+
 from beatmap import BeatMapManager
-from scenes.scene import SceneManager
-from scenes.title import Title
-from scenes.settings import Settings
+from events import Event
+
 from scenes.map_select import MapSelect
-from event import Event
+from scenes.scene import SceneManager
+from scenes.settings import Settings
+from scenes.title import Title
 
 def main():
     pg.init() # init everything
@@ -43,7 +45,6 @@ def main():
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 running = False
-                break
             elif e.type == Event.BEATMAP_UPDATE_EVENT:
                 manager.scenes.update(beat_manager.beatmaps)
                 manager.current_scene.handle_event(e)

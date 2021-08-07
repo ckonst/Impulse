@@ -5,18 +5,19 @@ Created on Fri Dec 11 02:39:54 2020
 @author: Christian Konstantinov
 """
 # beatmap generation
-import perlin
 from onset_detect import superflux
+import perlin
 
 # audio stuff
 import numpy as np
 from pydub import AudioSegment
 
 # file I/O
+import json
 import os
 from tkinter import Tk
 from tkinter import filedialog
-import json
+
 
 #FIXME: crashes when filename ends with a '.'
 

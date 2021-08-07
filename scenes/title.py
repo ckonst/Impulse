@@ -6,8 +6,10 @@ Created on Fri Dec 11 02:45:41 2020
 """
 
 import pygame as pg
-from scene import Scene, Button
 from pygame import mixer
+
+from buttons import RectangleButton
+from scene import Scene
 
 class Title(Scene):
     def __init__(self, surface, color, font=None, bgi=None, bgm=None):
@@ -21,14 +23,14 @@ class Title(Scene):
         x = self.width // 2 - w // 2
         y = self.height // 2 - h // 1.5
         self.menu_items = [
-            Button('Play', self.surface,
-                   {'onclick': lambda: self.change_scene('map_select')},
+            RectangleButton('Play', self.surface,
+                   lambda: self.change_scene('map_select'),
                    x, y, w, h, self.colors, font=font),
-            Button('Settings', self.surface,
-                   {'onclick': lambda: self.change_scene('settings')},
+            RectangleButton('Settings', self.surface,
+                   lambda: self.change_scene('settings'),
                    x, y + 150, w, h, self.colors, font=font),
-            Button('Quit', self.surface,
-                   {'onclick': lambda: self.quit_game()},
+            RectangleButton('Quit', self.surface,
+                   self.quit_game,
                    x, y + 300, w, h, self.colors, font=font)
         ]
         self.title_img = pg.image.load('assets/img/title.png')

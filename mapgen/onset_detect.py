@@ -5,8 +5,8 @@ Created on Wed Dec  9 02:40:34 2020
 @author: Christian Konstantinov
 """
 
-import numpy as np
 import librosa as lb
+import numpy as np
 
 def get_lmfs(fs, input_sig, W, stride, fmin=20.0, fmax=20000.0):
     """Return the log mel frequency spectrogram."""

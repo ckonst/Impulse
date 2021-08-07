@@ -7,11 +7,14 @@ Created on Sat Dec 12 21:44:03 2020
 
 import pygame as pg
 from pygame import mixer
-from scene import Scene, Button
 from pygame import time
-from event import Event
+
+from buttons import CircleButton
+from events import Event
+from scene import Scene
 
 class Map(Scene):
+
     def __init__(self, surface, color, name, beatmap, game_clock, font=None, bgi=None, bgm=None):
         super().__init__(surface, color, font=font, bgi=bgi, bgm=bgm)
         self.img = pg.image.load('./assets/img/button30.png')
@@ -32,16 +35,13 @@ class Map(Scene):
         self.buttons = [] # current buttons on screen
         self.counter = 0 # counter for button text
         self.last_note = 0 # last number note hit
-        self.time = -3
+        self.time = -3 # start time
         self.error = 0.005
         self.offset = 0.5
         self.score = 0
         self.combo = 0
         self.total_misses = 0
         self.failure_condition = 50
-        self.circlehit = mixer.Sound('./assets/audio/circlehit.mp3')
-        self.circlehit.set_volume(0.5)
-        self.menuback = mixer.Sound('assets/audio/menuback.wav')
         self.waiting = False
         self.holding = False
 
@@ -146,7 +146,7 @@ class Map(Scene):
         self.counter = (self.counter % 8) + 1
         w, h = self.img.get_size()
         button = CircleButton(str(self.counter), self.surface,
-                        {'onclick': lambda x: self.hit(x)},
+                        lambda x: self.hit(x),
                         self.c_x - w // 2, self.c_y - h // 2,
                         w, h, self.time, self.c_beat, self.game_clock,
                         img=self.img, font=self.font,
@@ -156,58 +156,9 @@ class Map(Scene):
     def hit(self, circle_button):
         if not circle_button.num == self.last_note + 1:
             return
-        self.circlehit.play()
+        circle_button.sound.play()
         self.combo += 1
         self.score += 300 * self.combo
         self.last_note = (self.last_note + 1) % 8
         circle_button.visible = False
         self.buttons = [button for button in self.buttons if button is not circle_button]
-
-class CircleButton(Button):
-    def __init__(self, text, surface, action, x, y, w, h, t, onset,
-                 game_clock, colors=None, img=None, font=None,
-                 movable=False, disappear_after=0, num=1):
-        super().__init__(text, surface, action, x, y, w, h, colors,
-                         img=img, font=font, movable=movable)
-        self.disappear_after = disappear_after
-        self.clock = time.Clock()
-        self.game_clock = game_clock
-        self.time = t
-        self.onset = onset
-        self.tolerance = 0.3 # how far off the onset will we consider a click to be a hit
-        self.visible = True
-        self.center = (self.x + self.w/2, self.y + self.h/2)
-        self.approach_radius = self.w * 2
-        self.approach_shrink_rate = ((self.w * 2 - self.w / 2) \
-                 / ((onset - t) * game_clock.get_fps()))
-        self.num = num
-
-    def update(self):
-        if not self.visible:
-            return
-        self.clock.tick()
-        self.time += self.clock.get_time() / 1000 # get time in seconds.
-        if self.time >= self.onset + self.disappear_after:
-            self.visible = False
-            combo_break_event = pg.event.Event(Event.COMBO_BREAK_EVENT)
-            pg.event.post(combo_break_event)
-
-    def render(self):
-        if not self.visible:
-            return
-        w, h = self.font.size(self.text)
-        self.approach_radius -= self.approach_shrink_rate
-        pg.draw.circle(self.surface, 0xffffff, self.center, self.approach_radius, width=10)
-        self.surface.blit(self.img, (self.x, self.y))
-        self.surface.blit(self.font.render(
-        self.text, False, (0,0,0)),
-        (self.x + self.w/2 - w/2, self.y + self.h/2 - h/2))
-
-    def handle_event(self, e):
-        if e.key == pg.K_z or pg.K_x:
-            self.check_hovering()
-            if self.hovering:
-                low = self.onset - self.tolerance
-                high = self.onset + self.tolerance
-                if self.time >= low and self.time <= high:
-                    self.action['onclick'](self)

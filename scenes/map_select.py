@@ -6,35 +6,35 @@ Created on Sat Dec 12 21:43:30 2020
 """
 
 import pygame as pg
-from scene import Scene, Button
 from pygame import mixer
-from event import Event
+
+from buttons import RectangleButton
+from events import Event
+from scene import Scene
 
 class MapSelect(Scene):
     def __init__(self, surface, color, beat_manager, font=None, bgi=None, bgm=None):
         super().__init__(surface, color, font=font, bgi=bgi, bgm=bgm)
         self.beat_manager = beat_manager
         self.beatmaps = beat_manager.beatmaps
-        self.colors =  {'idle': (0xA0,0xB6,0xBD),
-                       'hover': (0x8E,0xBA,0xC8),
-                       'press': (0x79,0x8A,0x8F)
-                       }
         self.w = 800
         self.h = 100
         x = self.width // 2 - self.w // 2
         y = self.height // 2 - self.h // 1.5
         keys = self.beatmaps.keys()
+        self.colors =  {'idle': (0xA0,0xB6,0xBD),
+                       'hover': (0x8E,0xBA,0xC8),
+                       'press': (0x79,0x8A,0x8F)
+                       }
         self.menu_items = [
-            Button(name, self.surface,
-                   {'onclick': self.play_map},
-                   x, y + 150*i, self.w, self.h, self.colors, font=font, song=True)
+            RectangleButton(name, self.surface, self.play_map,
+                   x, y + 150*i, self.w, self.h, self.colors, font=font, is_song=True)
             for i, name in enumerate(keys)
         ]
         gen = self.beat_manager.generate_beatmap
-        self.menu_items.append(Button('Import', self.surface,
-                                     {'onclick': lambda: gen()},
+        self.menu_items.append(RectangleButton('Import', self.surface, gen,
                    0, 0, self.w/2, self.h, self.colors, font=self.font, movable=False))
-        self.menuback = mixer.Sound('assets/audio/menuback.wav')
+        
 
     def update(self):
         if mixer.music.get_busy():

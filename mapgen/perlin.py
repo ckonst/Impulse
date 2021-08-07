@@ -73,7 +73,7 @@ def interpolate(p, q, s, method):
         f = 3 * s**2 - 2 * s**3
         return p * (1 - f) + q * f
     else:
-        return 0
+        raise ValueError(f'{method} interpolation is not supported.')
 
 def normalize(input_sig):
     """Normalize to [-1, 1]"""
