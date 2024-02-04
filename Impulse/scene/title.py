@@ -1,7 +1,8 @@
 import pygame as pg
-from buttons import RectangleButton
 from pygame import mixer
-from scene import Scene
+
+from Impulse.scene import Scene
+from Impulse.scene.buttons import RectangleButton
 
 
 class Title(Scene):
@@ -52,8 +53,8 @@ class Title(Scene):
                 font=font,
             )
         ]
-        self.title_img = pg.image.load('assets/img/title.png')
-        self.logo_img = pg.image.load('assets/img/waveform.png')
+        self.title_img = pg.image.load('./Impulse/data/assets/img/title.png')
+        self.logo_img = pg.image.load('./Impulse/data/assets/img/waveform.png')
 
     def update(self):
         for button in self.menu_items:

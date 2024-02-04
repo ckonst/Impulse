@@ -1,26 +1,29 @@
 from abc import ABC
 
 import pygame as pg
-from events import Event
 from pygame import mixer, time
+
+from Impulse.events import Event
 
 
 # TODO: state enum
 class Button(ABC):
 
-    def __init__(self,
-                 text,
-                 surface,
-                 onclick,
-                 x,
-                 y,
-                 w,
-                 h,
-                 colors,
-                 img=None,
-                 font=None,
-                 movable=True,
-                 song=False):
+    def __init__(
+        self,
+        text,
+        surface,
+        onclick,
+        x,
+        y,
+        w,
+        h,
+        colors,
+        img=None,
+        font=None,
+        movable=True,
+        song=False,
+    ):
         self.text = text
         self.surface = surface
         self.onclick = onclick
@@ -58,32 +61,36 @@ class Button(ABC):
 
 class RectangleButton(Button):
 
-    def __init__(self,
-                 text,
-                 surface,
-                 onclick,
-                 x,
-                 y,
-                 w,
-                 h,
-                 colors,
-                 img=None,
-                 font=None,
-                 movable=True,
-                 is_song=False):
-        super().__init__(text,
-                         surface,
-                         onclick,
-                         x,
-                         y,
-                         w,
-                         h,
-                         colors,
-                         img=img,
-                         font=font,
-                         movable=movable)
+    def __init__(
+        self,
+        text,
+        surface,
+        onclick,
+        x,
+        y,
+        w,
+        h,
+        colors,
+        img=None,
+        font=None,
+        movable=True,
+        is_song=False,
+    ):
+        super().__init__(
+            text,
+            surface,
+            onclick,
+            x,
+            y,
+            w,
+            h,
+            colors,
+            img=img,
+            font=font,
+            movable=movable,
+        )
         self.is_song = is_song
-        self.sound = mixer.Sound('assets/audio/menuhit.wav')
+        self.sound = mixer.Sound('./Impulse/data/assets/audio/menuhit.wav')
 
     def update(self):
         self.check_hovering()
@@ -125,35 +132,39 @@ class RectangleButton(Button):
 
 class CircleButton(Button):
 
-    def __init__(self,
-                 text,
-                 surface,
-                 onclick,
-                 x,
-                 y,
-                 w,
-                 h,
-                 t,
-                 onset,
-                 game_clock,
-                 colors=None,
-                 img=None,
-                 font=None,
-                 movable=False,
-                 disappear_after=0,
-                 num=1):
-        super().__init__(text,
-                         surface,
-                         onclick,
-                         x,
-                         y,
-                         w,
-                         h,
-                         colors,
-                         img=img,
-                         font=font,
-                         movable=movable)
-        self.sound = mixer.Sound('./assets/audio/circlehit.mp3')
+    def __init__(
+        self,
+        text,
+        surface,
+        onclick,
+        x,
+        y,
+        w,
+        h,
+        t,
+        onset,
+        game_clock,
+        colors=None,
+        img=None,
+        font=None,
+        movable=False,
+        disappear_after=0,
+        num=1,
+    ):
+        super().__init__(
+            text,
+            surface,
+            onclick,
+            x,
+            y,
+            w,
+            h,
+            colors,
+            img=img,
+            font=font,
+            movable=movable,
+        )
+        self.sound = mixer.Sound('.Impulse/data/assets/audio/circlehit.mp3')
         self.sound.set_volume(0.5)
         self.disappear_after = disappear_after
         self.clock = time.Clock()

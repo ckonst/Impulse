@@ -1,15 +1,16 @@
 import pygame as pg
-from buttons import CircleButton
-from events import Event
 from pygame import mixer, time
-from scene import Scene
+
+from Impulse.events import Event
+from Impulse.scene import Scene
+from Impulse.scene.buttons import CircleButton
 
 
 class Map(Scene):
 
     def __init__(self, surface, color, name, beatmap, game_clock, font=None, bgi=None, bgm=None):
         super().__init__(surface, color, font=font, bgi=bgi, bgm=bgm)
-        self.img = pg.image.load('./assets/img/button30.png')
+        self.img = pg.image.load('./Impulse/data/assets/img/button30.png')
         self.name = name
         self.beatmap = beatmap
         self.beats = beatmap['onsets']
@@ -135,20 +136,22 @@ class Map(Scene):
     def _produce_beat(self, x, y, t):
         self.counter = (self.counter % 8) + 1
         w, h = self.img.get_size()
-        button = CircleButton(str(self.counter),
-                              self.surface,
-                              lambda x: self.hit(x),
-                              self.c_x - w // 2,
-                              self.c_y - h // 2,
-                              w,
-                              h,
-                              self.time,
-                              self.c_beat,
-                              self.game_clock,
-                              img=self.img,
-                              font=self.font,
-                              disappear_after=0.5,
-                              num=self.counter)
+        button = CircleButton(
+            str(self.counter),
+            self.surface,
+            lambda x: self.hit(x),
+            self.c_x - w // 2,
+            self.c_y - h // 2,
+            w,
+            h,
+            self.time,
+            self.c_beat,
+            self.game_clock,
+            img=self.img,
+            font=self.font,
+            disappear_after=0.5,
+            num=self.counter,
+        )
         self.buttons.insert(0, button)
 
     def hit(self, circle_button):

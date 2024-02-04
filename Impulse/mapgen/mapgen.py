@@ -6,9 +6,10 @@ from tkinter import Tk, filedialog
 
 # audio stuff
 import numpy as np
-import perlin
-from onset_detect import superflux
 from pydub import AudioSegment
+
+from Impulse.mapgen import perlin
+from Impulse.mapgen.onset_detect import superflux
 
 #FIXME: crashes when filename ends with a '.'
 

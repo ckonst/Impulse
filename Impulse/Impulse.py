@@ -1,25 +1,44 @@
+import logging as log
+from functools import wraps
+
 import pygame as pg
-from beatmap import BeatMapManager
-from events import Event
-from scenes.map_select import MapSelect
-from scenes.scene import SceneManager
-from scenes.settings import Settings
-from scenes.title import Title
+
+from Impulse.beatmap import BeatMapManager
+from Impulse.events import Event
+from Impulse.scene import SceneManager
+from Impulse.scene.map_select import MapSelect
+from Impulse.scene.settings import Settings
+from Impulse.scene.title import Title
 
 
+def pygame_app(f):
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        pg.init()
+        try:
+            f(*args, **kwargs)
+        except Exception as ex:
+            log.error(ex)
+        finally:
+            pg.quit()
+
+    return wrapper
+
+
+@pygame_app
 def main():
-    pg.init()  # init everything
-
     # display stuff
+    # TODO: find native resolution and use that
     width = 1920
     height = 1080
     surface = pg.display.set_mode([width, height])
     surface.convert()
     bg_color = 0x464f53
-    cursor = pg.image.load('./assets/img/cursor.png')
+    cursor = pg.image.load('./Impulse/data/assets/img/cursor.png')
     pg.mouse.set_visible(False)
 
-    FONT_PATH = './assets/fonts/Gidole-Regular.otf'
+    FONT_PATH = './Impulse/data/assets/fonts/Gidole-Regular.otf'
     font = pg.font.Font(FONT_PATH, 48)
     clock = pg.time.Clock()
     beat_manager = BeatMapManager(clock, surface, bg_color, font)
@@ -50,12 +69,3 @@ def main():
         manager.render()
         pg.display.update()
         clock.tick(240)
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        pg.quit()

@@ -3,3 +3,4 @@ pygame
 librosa
 pydub
 setuptools
+numba

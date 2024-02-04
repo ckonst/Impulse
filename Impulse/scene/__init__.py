@@ -1,9 +1,12 @@
+from abc import ABC, abstractmethod
+
 import pygame as pg
-from events import Event
 from pygame import mixer
 
+from Impulse.events import Event
 
-class Scene():
+
+class Scene(ABC):
 
     def __init__(self, surface, color, font=None, bgi=None, bgm=None):
         self.surface = surface
@@ -13,14 +16,17 @@ class Scene():
         self.color = color
         self.bgi = bgi
         self.bgm = bgm
-        self.menuback = mixer.Sound('assets/audio/menuback.wav')
+        self.menuback = mixer.Sound('./Impulse/data/assets/audio/menuback.wav')
 
+    @abstractmethod
     def update(self):
         pass
 
+    @abstractmethod
     def render(self):
         pass
 
+    @abstractmethod
     def handle_event(self, e):
         pass
 
@@ -32,7 +38,7 @@ class Scene():
         pg.event.post(scene_change_event)
 
 
-class SceneManager():
+class SceneManager:
 
     def __init__(self, scenes, current_scene, surface, cursor):
         self.scenes = scenes

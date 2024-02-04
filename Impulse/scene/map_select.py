@@ -1,8 +1,9 @@
 import pygame as pg
-from buttons import RectangleButton
-from events import Event
 from pygame import mixer
-from scene import Scene
+
+from Impulse.events import Event
+from Impulse.scene import Scene
+from Impulse.scene.buttons import RectangleButton
 
 
 class MapSelect(Scene):
@@ -22,29 +23,33 @@ class MapSelect(Scene):
             'press': (0x79, 0x8A, 0x8F)
         }
         self.menu_items = [
-            RectangleButton(name,
-                            self.surface,
-                            self.play_map,
-                            x,
-                            y + 150 * i,
-                            self.w,
-                            self.h,
-                            self.colors,
-                            font=font,
-                            is_song=True) for i, name in enumerate(keys)
+            RectangleButton(
+                name,
+                self.surface,
+                self.play_map,
+                x,
+                y + 150 * i,
+                self.w,
+                self.h,
+                self.colors,
+                font=font,
+                is_song=True,
+            ) for i, name in enumerate(keys)
         ]
         gen = self.beat_manager.generate_beatmap
         self.menu_items.append(
-            RectangleButton('Import',
-                            self.surface,
-                            gen,
-                            0,
-                            0,
-                            self.w / 2,
-                            self.h,
-                            self.colors,
-                            font=self.font,
-                            movable=False))
+            RectangleButton(
+                'Import',
+                self.surface,
+                gen,
+                0,
+                0,
+                self.w / 2,
+                self.h,
+                self.colors,
+                font=self.font,
+                movable=False,
+            ))
 
     def update(self):
         if mixer.music.get_busy():

@@ -1,7 +1,8 @@
 import pygame as pg
-from buttons import RectangleButton
 from pygame import mixer
-from scene import Scene
+
+from Impulse.scene import Scene
+from Impulse.scene.buttons import RectangleButton
 
 
 class Settings(Scene):

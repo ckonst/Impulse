@@ -2,9 +2,10 @@ import json
 import os
 
 import pygame as pg
-from events import Event
-from mapgen import mapgen
-from scenes.map import Map
+
+from Impulse.events import Event
+from Impulse.mapgen import mapgen
+from Impulse.scene.map import Map
 
 
 class BeatMapManager():
@@ -12,7 +13,7 @@ class BeatMapManager():
     def __init__(self, clock, surface, bg_color, font):
         self.clock = clock
         self.beatmaps = {}
-        self.BEATMAPS = './beatmaps/'
+        self.BEATMAPS = './Impulse/data/beatmaps/'
         self.surface = surface
         self.bg_color = bg_color
         self.font = font
@@ -31,14 +32,16 @@ class BeatMapManager():
                 img = f'{path}.png'
             else:
                 img = None
-            self.beatmaps[name] = Map(self.surface,
-                                      self.bg_color,
-                                      name,
-                                      beatmap,
-                                      self.clock,
-                                      font=self.font,
-                                      bgi=img,
-                                      bgm=f'{path}.mp3')
+            self.beatmaps[name] = Map(
+                self.surface,
+                self.bg_color,
+                name,
+                beatmap,
+                self.clock,
+                font=self.font,
+                bgi=img,
+                bgm=f'{path}.mp3',
+            )
 
     def load_map(self, name):
         """Load the beatmap's assets. Called before changing the scene."""
@@ -55,14 +58,19 @@ class BeatMapManager():
             return False
         name = beatmap['name']
         path = f'{self.BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(self.surface,
-                                  self.bg_color,
-                                  name,
-                                  beatmap,
-                                  self.clock,
-                                  font=self.font,
-                                  bgi=None,
-                                  bgm=f'{path}.mp3')
+        self.beatmaps[name] = Map(
+            self.surface,
+            self.bg_color,
+            name,
+            beatmap,
+            self.clock,
+            font=self.font,
+            bgi=None,
+            bgm=f'{path}.mp3',
+        )
         pg.event.post(
-            pg.event.Event(Event.BEATMAP_UPDATE_EVENT, event_name=name,
-                           beatmap=self.beatmaps[name]))
+            pg.event.Event(
+                Event.BEATMAP_UPDATE_EVENT,
+                event_name=name,
+                beatmap=self.beatmaps[name],
+            ))

@@ -133,3 +133,6 @@ dmypy.json
 
 # libav
 libav/
+
+# Large audio files for performance testing
+tests/data/audio/large/*
