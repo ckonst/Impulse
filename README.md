@@ -3,11 +3,11 @@ Impulse is a rhythm game where the player must click on the circles that appear 
 
 The beatmaps are automatically generated using superflux onset detection, and Perlin Noise for x and y coordinates.
 
-![mel spectrogram](https://raw.githubusercontent.com/ckonst/Impulse/master/Impulse/data/assets/img/log-mel-fs.png)
+![mel spectrogram](https://raw.githubusercontent.com/ckonst/Impulse/master/Impulse/data/assets/img/log-mel-fs.jpg)
 
 For onset detection, a log mel-spectrogram is taken from the user's selected audio file. A window length of 1024 samples with a stride of 441 samples is used at a sampling frequency of 44100 Hz.
 
-![superflux onsets](https://raw.githubusercontent.com/ckonst/Impulse/master/Impulse/data/assets/img/superflux-onsets.png)
+![superflux onsets](https://raw.githubusercontent.com/ckonst/Impulse/master/Impulse/data/assets/img/superflux-onsets.jpg)
 
 Next the superflux function is applied to generate peaks for the peak picking onset detection function.
 
