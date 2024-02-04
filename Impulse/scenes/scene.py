@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Dec 12 22:50:24 2020
-
-@author: Christian Konstantinov
-"""
-
 import pygame as pg
+from events import Event
 from pygame import mixer
 
-from events import Event
 
 class Scene():
+
     def __init__(self, surface, color, font=None, bgi=None, bgm=None):
         self.surface = surface
         self.width = surface.get_width()
@@ -34,10 +28,10 @@ class Scene():
         pg.event.post(pg.event.Event(pg.QUIT))
 
     def change_scene(self, name):
-        scene_change_event = pg.event.Event(Event.SCENE_CHANGE_EVENT,
-                                            event_name=name)
+        scene_change_event = pg.event.Event(Event.SCENE_CHANGE_EVENT, event_name=name)
         pg.event.post(scene_change_event)
-    
+
+
 class SceneManager():
 
     def __init__(self, scenes, current_scene, surface, cursor):

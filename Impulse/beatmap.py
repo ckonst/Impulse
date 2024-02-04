@@ -1,13 +1,14 @@
-import pygame as pg
-
 import json
 import os
 
-from mapgen import mapgen
+import pygame as pg
 from events import Event
+from mapgen import mapgen
 from scenes.map import Map
 
+
 class BeatMapManager():
+
     def __init__(self, clock, surface, bg_color, font):
         self.clock = clock
         self.beatmaps = {}
@@ -30,8 +31,13 @@ class BeatMapManager():
                 img = f'{path}.png'
             else:
                 img = None
-            self.beatmaps[name] = Map(self.surface, self.bg_color, name, beatmap,
-                                      self.clock, font=self.font, bgi=img,
+            self.beatmaps[name] = Map(self.surface,
+                                      self.bg_color,
+                                      name,
+                                      beatmap,
+                                      self.clock,
+                                      font=self.font,
+                                      bgi=img,
                                       bgm=f'{path}.mp3')
 
     def load_map(self, name):
@@ -49,8 +55,14 @@ class BeatMapManager():
             return False
         name = beatmap['name']
         path = f'{self.BEATMAPS}{name}/{name}'
-        self.beatmaps[name] = Map(self.surface, self.bg_color, name, beatmap,
-                                  self.clock, font=self.font,
-                                  bgi=None, bgm=f'{path}.mp3')
-        pg.event.post(pg.event.Event(Event.BEATMAP_UPDATE_EVENT,
-                                     event_name=name, beatmap=self.beatmaps[name]))
+        self.beatmaps[name] = Map(self.surface,
+                                  self.bg_color,
+                                  name,
+                                  beatmap,
+                                  self.clock,
+                                  font=self.font,
+                                  bgi=None,
+                                  bgm=f'{path}.mp3')
+        pg.event.post(
+            pg.event.Event(Event.BEATMAP_UPDATE_EVENT, event_name=name,
+                           beatmap=self.beatmaps[name]))

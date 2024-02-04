@@ -1,17 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Dec 12 21:44:03 2020
-
-@author: Christian Konstantinov
-"""
-
 import pygame as pg
-from pygame import mixer
-from pygame import time
-
 from buttons import CircleButton
 from events import Event
+from pygame import mixer, time
 from scene import Scene
+
 
 class Map(Scene):
 
@@ -29,13 +21,13 @@ class Map(Scene):
         self.finished = False
         self.clock = time.Clock()
         self.game_clock = game_clock
-        self.c_x = self.beatmap['xs'][0] # current x position
-        self.c_y = self.beatmap['ys'][0] # current y position
-        self.c_beat = self.beats[0] # current beat in seconds
-        self.buttons = [] # current buttons on screen
-        self.counter = 0 # counter for button text
-        self.last_note = 0 # last number note hit
-        self.time = -3 # start time
+        self.c_x = self.beatmap['xs'][0]  # current x position
+        self.c_y = self.beatmap['ys'][0]  # current y position
+        self.c_beat = self.beats[0]  # current beat in seconds
+        self.buttons = []  # current buttons on screen
+        self.counter = 0  # counter for button text
+        self.last_note = 0  # last number note hit
+        self.time = -3  # start time
         self.error = 0.005
         self.offset = 0.5
         self.score = 0
@@ -55,11 +47,11 @@ class Map(Scene):
             self.change_scene('map_select')
 
         self.clock.tick()
-        self.time += self.clock.get_time() / 1000 # get time in seconds.
+        self.time += self.clock.get_time() / 1000  # get time in seconds.
 
         low = self.c_beat - self.error - self.offset
         high = self.c_beat + self.error - self.offset
-        
+
         if not self.waiting:
             try:
                 self.c_beat, self.c_x, self.c_y = next(self.bmr)
@@ -79,15 +71,11 @@ class Map(Scene):
         self.surface.fill(self.color)
         for button in self.buttons:
             button.render()
-        self.surface.blit(self.font.render(
-            f'SCORE: {self.score}', False, (0,0,0)),
-            (self.width//2.35, 20))
-        self.surface.blit(self.font.render(
-            f'{self.combo}X', False, (0,0,0)),
-            (20, 1000))
-        self.surface.blit(self.font.render(
-            f'MISS: {self.total_misses}', False, (0,0,0)),
-            (1700, 1000))
+        self.surface.blit(self.font.render(f'SCORE: {self.score}', False, (0, 0, 0)),
+                          (self.width // 2.35, 20))
+        self.surface.blit(self.font.render(f'{self.combo}X', False, (0, 0, 0)), (20, 1000))
+        self.surface.blit(self.font.render(f'MISS: {self.total_misses}', False, (0, 0, 0)),
+                          (1700, 1000))
 
     def handle_event(self, e):
         if e.type == Event.COMBO_BREAK_EVENT:
@@ -111,25 +99,27 @@ class Map(Scene):
         elif e.type == pg.KEYUP:
             self.holding = False
 
+
 # TODO: Remove this method in favor of simply reconstructing the object
+
     def reset(self):
-        self.c_x = self.beatmap['xs'][0] # current x position
-        self.c_y = self.beatmap['ys'][0] # current y position
-        self.c_beat = self.beats[0] # current beat in seconds
-        self.buttons = [] # current buttons on screen
+        self.c_x = self.beatmap['xs'][0]  # current x position
+        self.c_y = self.beatmap['ys'][0]  # current y position
+        self.c_beat = self.beats[0]  # current beat in seconds
+        self.buttons = []  # current buttons on screen
         w, h = self.surface.get_size()
         self.xs = map(lambda x: round((x + 1) / 2 * w), self.beatmap['xs'])
         self.ys = map(lambda y: round((y + 1) / 2 * h), self.beatmap['ys'])
         self.clock = time.Clock()
         self.finished = False
-        self.counter = 0 # counter for button text
+        self.counter = 0  # counter for button text
         self.time = -3
         self.score = 0
         self.combo = 0
         self.total_misses = 0
         self.waiting = False
         self.holding = False
-        self.last_note = 1 # last number note hit
+        self.last_note = 1  # last number note hit
         for _ in self.bmr:
             pass
         self.bmr = self._beatmap_reader()
@@ -145,12 +135,20 @@ class Map(Scene):
     def _produce_beat(self, x, y, t):
         self.counter = (self.counter % 8) + 1
         w, h = self.img.get_size()
-        button = CircleButton(str(self.counter), self.surface,
-                        lambda x: self.hit(x),
-                        self.c_x - w // 2, self.c_y - h // 2,
-                        w, h, self.time, self.c_beat, self.game_clock,
-                        img=self.img, font=self.font,
-                        disappear_after=0.5, num=self.counter)
+        button = CircleButton(str(self.counter),
+                              self.surface,
+                              lambda x: self.hit(x),
+                              self.c_x - w // 2,
+                              self.c_y - h // 2,
+                              w,
+                              h,
+                              self.time,
+                              self.c_beat,
+                              self.game_clock,
+                              img=self.img,
+                              font=self.font,
+                              disappear_after=0.5,
+                              num=self.counter)
         self.buttons.insert(0, button)
 
     def hit(self, circle_button):

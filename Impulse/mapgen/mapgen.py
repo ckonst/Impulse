@@ -1,25 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 11 02:39:54 2020
-
-@author: Christian Konstantinov
-"""
 # beatmap generation
-from onset_detect import superflux
-import perlin
-
-# audio stuff
-import numpy as np
-from pydub import AudioSegment
-
 # file I/O
 import json
 import os
-from tkinter import Tk
-from tkinter import filedialog
+from tkinter import Tk, filedialog
 
+# audio stuff
+import numpy as np
+import perlin
+from onset_detect import superflux
+from pydub import AudioSegment
 
 #FIXME: crashes when filename ends with a '.'
+
 
 def generate(persistence=0.5, octaves=6, f0=128):
     BEATMAPS = './beatmaps/'
@@ -61,12 +53,12 @@ def generate(persistence=0.5, octaves=6, f0=128):
 
     # write the beatmap data to a json file, overwriting if it already exists.
     json_path = beatmap_path + JSON
-    beatmap = {'name': folder_path, 'onsets' : onsets.tolist(),
-               'xs' : xs.tolist(), 'ys' : ys.tolist()}
+    beatmap = {'name': folder_path, 'onsets': onsets.tolist(), 'xs': xs.tolist(), 'ys': ys.tolist()}
     with open(json_path, 'w+') as outfile:
         json.dump(beatmap, outfile)
 
     return beatmap
+
 
 def file_dialog():
     """Open a file dialog to prompt the user to select an audio file."""
@@ -79,6 +71,7 @@ def file_dialog():
     _, file_ext = os.path.splitext(file_path)
     return file_path, file_ext[1:]
 
+
 def file_to_ndarray(file_path, file_type):
     """Given a path to a file, and its type (extension without '.'),
        Return a tuple conataining
@@ -89,6 +82,7 @@ def file_to_ndarray(file_path, file_type):
     output_sig = segment_to_ndarray(audio_seg)
     return audio_seg.frame_rate, output_sig, audio_seg
 
+
 def segment_to_ndarray(audio_seg):
     """Given an AudioSegment, return a nd numpy array containing PCM audio data."""
     samples = np.array(audio_seg.get_array_of_samples())
@@ -97,10 +91,12 @@ def segment_to_ndarray(audio_seg):
     L_channel, R_channel = samples[::2], samples[1::2]
     return np.column_stack((L_channel, R_channel))
 
+
 def stereo_to_mono(input_sig):
     """Given a stereo input signal, return the average of the L and R channels."""
     output_sig = input_sig[:, 0] + input_sig[:, 1]
     return perlin.normalize(output_sig)
+
 
 def to_float32(input_sig):
     return input_sig.astype(np.float32)

@@ -1,22 +1,14 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec  8 22:13:05 2020
-
-@author: Christian Konstantinov
-"""
-
 import pygame as pg
-
 from beatmap import BeatMapManager
 from events import Event
-
 from scenes.map_select import MapSelect
 from scenes.scene import SceneManager
 from scenes.settings import Settings
 from scenes.title import Title
 
+
 def main():
-    pg.init() # init everything
+    pg.init()  # init everything
 
     # display stuff
     width = 1920
@@ -32,10 +24,12 @@ def main():
     clock = pg.time.Clock()
     beat_manager = BeatMapManager(clock, surface, bg_color, font)
 
-    scenes = {'title': Title(surface, bg_color, font=font),
-            'settings': Settings(surface, bg_color, font=font),
-            'map_select': MapSelect(surface, bg_color, beat_manager, font=font),
-            **beat_manager.beatmaps}
+    scenes = {
+        'title': Title(surface, bg_color, font=font),
+        'settings': Settings(surface, bg_color, font=font),
+        'map_select': MapSelect(surface, bg_color, beat_manager, font=font),
+        **beat_manager.beatmaps
+    }
 
     manager = SceneManager(scenes, scenes['title'], surface, cursor)
 
@@ -56,6 +50,7 @@ def main():
         manager.render()
         pg.display.update()
         clock.tick(240)
+
 
 if __name__ == '__main__':
     try:
