@@ -55,7 +55,6 @@ class Map(Scene):
     def update(self):
         if not mixer.music.get_busy() and not self.finished:
             if (self.time >= 0):
-                log.debug(self.time)
                 mixer.music.play()
 
         self.clock.tick()
@@ -109,6 +108,7 @@ class Map(Scene):
                 if e.key == pg.K_ESCAPE:
                     self.finished = True
                     self.menuback.play()
+                    # Change scene before reload to ensure BEATMAP_UPDATE_EVENT is handled in MapSelect.
                     self.change_scene('map_select')
                     self.reload(self.name)
                 elif e.key == pg.K_r:
@@ -122,6 +122,7 @@ class Map(Scene):
                 self.holding = False
 
     def _restart(self):
+        # Reload before changing scene to ensure BEATMAP_UPDATE_EVENT is handled before resetting the scene.
         self.reload(self.name)
         self.change_scene(self.name)
         mixer.music.rewind()
