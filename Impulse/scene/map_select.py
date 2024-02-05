@@ -3,7 +3,9 @@ from pygame import mixer
 
 from Impulse.events import Event
 from Impulse.scene import Scene
-from Impulse.scene.buttons import RectangleButton
+from Impulse.scene.buttons import ButtonState, RectangleButton
+
+import logging as log
 
 
 class MapSelect(Scene):
@@ -14,34 +16,30 @@ class MapSelect(Scene):
         self.beatmaps = beat_manager.beatmaps
         self.w = 800
         self.h = 100
-        x = self.width // 2 - self.w // 2
-        y = self.height // 2 - self.h // 1.5
-        keys = self.beatmaps.keys()
         self.colors = {
-            'idle': (0xA0, 0xB6, 0xBD),
-            'hover': (0x8E, 0xBA, 0xC8),
-            'press': (0x79, 0x8A, 0x8F)
+            ButtonState.IDLE: (0xA0, 0xB6, 0xBD),
+            ButtonState.HOVER: (0x8E, 0xBA, 0xC8),
+            ButtonState.PRESS: (0x79, 0x8A, 0x8F)
         }
         self.menu_items = [
             RectangleButton(
                 name,
                 self.surface,
                 self.play_map,
-                x,
-                y + 150 * i,
+                self.width // 2 - self.w // 2,
+                self.height // 2 - self.h // 1.5 + 150 * i,
                 self.w,
                 self.h,
                 self.colors,
                 font=font,
                 is_song=True,
-            ) for i, name in enumerate(keys)
+            ) for i, name in enumerate(self.beatmaps.keys())
         ]
-        gen = self.beat_manager.generate_beatmap
         self.menu_items.append(
             RectangleButton(
                 'Import',
                 self.surface,
-                gen,
+                self.beat_manager.generate_beatmap,
                 0,
                 0,
                 self.w / 2,
@@ -75,8 +73,8 @@ class MapSelect(Scene):
                     button.dy = e.y * 15
         elif e.type == Event.BEATMAP_UPDATE_EVENT:
             # play map
+            log.debug(f'Handling Beatmap Update of {e.event_name} in Map Select')
             self.beatmaps.update({e.event_name: e.beatmap})
-            self.play_map(e.event_name)
         else:
             for button in self.menu_items:
                 button.handle_event(e)

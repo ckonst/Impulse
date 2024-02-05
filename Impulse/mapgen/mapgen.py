@@ -15,7 +15,7 @@ from Impulse.mapgen.onset_detect import superflux
 
 
 def generate(persistence=0.5, octaves=6, f0=128):
-    BEATMAPS = './beatmaps/'
+    BEATMAPS = './Impulse/data/beatmaps/'
     FILE_EXT = '.mp3'
     JSON = '/beatmap.json'
     # get the file path from the user
@@ -96,7 +96,7 @@ def segment_to_ndarray(audio_seg):
 def stereo_to_mono(input_sig):
     """Given a stereo input signal, return the average of the L and R channels."""
     output_sig = input_sig[:, 0] + input_sig[:, 1]
-    return perlin.normalize(output_sig)
+    return perlin.peak_normalize(output_sig)
 
 
 def to_float32(input_sig):

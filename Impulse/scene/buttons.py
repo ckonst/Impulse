@@ -1,9 +1,16 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from enum import StrEnum
 
 import pygame as pg
 from pygame import mixer, time
 
 from Impulse.events import Event
+
+
+class ButtonState(StrEnum):
+    IDLE = 'idle'
+    HOVER = 'hover'
+    PRESS = 'press'
 
 
 # TODO: state enum
@@ -35,7 +42,7 @@ class Button(ABC):
         self.y2 = self.y + self.h
         self.shape = pg.Rect(x, y, w, h)
         self.colors = colors
-        self.state = 'idle'
+        self.state = ButtonState.IDLE
         self.img = img
         self.font = font
         if font is None:
@@ -46,17 +53,21 @@ class Button(ABC):
         self.song = song
         self.sound = None
 
+    @abstractmethod
     def update(self):
-        pass
+        ...
 
+    @abstractmethod
     def render(self):
-        pass
+        ...
 
+    @abstractmethod
     def handle_event(self):
-        pass
+        ...
 
+    @abstractmethod
     def check_hovering(self):
-        pass
+        ...
 
 
 class RectangleButton(Button):
@@ -122,12 +133,12 @@ class RectangleButton(Button):
         if x >= self.x and x <= self.x2 and y >= self.y and y <= self.y2:
             self.hovering = True
             if pg.mouse.get_pressed()[0]:
-                self.state = 'press'
+                self.state = ButtonState.PRESS
             else:
-                self.state = 'hover'
+                self.state = ButtonState.HOVER
         else:
             self.hovering = False
-            self.state = 'idle'
+            self.state = ButtonState.IDLE
 
 
 class CircleButton(Button):
@@ -164,7 +175,7 @@ class CircleButton(Button):
             font=font,
             movable=movable,
         )
-        self.sound = mixer.Sound('.Impulse/data/assets/audio/circlehit.mp3')
+        self.sound = mixer.Sound('./Impulse/data/assets/audio/circlehit.mp3')
         self.sound.set_volume(0.5)
         self.disappear_after = disappear_after
         self.clock = time.Clock()
@@ -176,8 +187,8 @@ class CircleButton(Button):
         self.center = (self.x + self.w / 2, self.y + self.h / 2)
         self.radius = w // 2
         self.approach_radius = self.w * 2
-        self.approach_shrink_rate = ((self.w * 2 - self.w / 2) \
-                 / ((onset - t) * game_clock.get_fps()))
+        self.approach_shrink_rate = ((self.w * 2 - self.w / 2) /
+                                     ((onset - t) * game_clock.get_fps()))
         self.num = num
 
     def update(self):
@@ -218,9 +229,9 @@ class CircleButton(Button):
         if distance_squared <= self.radius**2:
             self.hovering = True
             if pg.mouse.get_pressed()[0]:
-                self.state = 'press'
+                self.state = ButtonState.PRESS
             else:
-                self.state = 'hover'
+                self.state = ButtonState.HOVER
         else:
             self.hovering = False
-            self.state = 'idle'
+            self.state = ButtonState.IDLE

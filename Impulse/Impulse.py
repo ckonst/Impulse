@@ -6,12 +6,14 @@ import pygame as pg
 from Impulse.beatmap import BeatMapManager
 from Impulse.events import Event
 from Impulse.scene import SceneManager
+from Impulse.scene.map import Map
 from Impulse.scene.map_select import MapSelect
 from Impulse.scene.settings import Settings
 from Impulse.scene.title import Title
 
 
 def pygame_app(f):
+    log.basicConfig(level=log.DEBUG)
 
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -19,8 +21,9 @@ def pygame_app(f):
         try:
             f(*args, **kwargs)
         except Exception as ex:
-            log.error(ex)
+            log.exception(ex)
         finally:
+            log.info('Exiting.')
             pg.quit()
 
     return wrapper
@@ -29,10 +32,8 @@ def pygame_app(f):
 @pygame_app
 def main():
     # display stuff
-    # TODO: find native resolution and use that
-    width = 1920
-    height = 1080
-    surface = pg.display.set_mode([width, height])
+    info = pg.display.Info()
+    surface = pg.display.set_mode((info.current_w, info.current_h))
     surface.convert()
     bg_color = 0x464f53
     cursor = pg.image.load('./Impulse/data/assets/img/cursor.png')
@@ -43,29 +44,20 @@ def main():
     clock = pg.time.Clock()
     beat_manager = BeatMapManager(clock, surface, bg_color, font)
 
-    scenes = {
+    scenes: dict[str, Map] = {
         'title': Title(surface, bg_color, font=font),
         'settings': Settings(surface, bg_color, font=font),
         'map_select': MapSelect(surface, bg_color, beat_manager, font=font),
         **beat_manager.beatmaps
     }
 
-    manager = SceneManager(scenes, scenes['title'], surface, cursor)
+    scene_manager = SceneManager(scenes, scenes['title'], surface, cursor, clock)
 
     running = True
 
     while running:
-        for e in pg.event.get():
-            if e.type == pg.QUIT:
-                running = False
-            elif e.type == Event.BEATMAP_UPDATE_EVENT:
-                manager.scenes.update(beat_manager.beatmaps)
-                manager.current_scene.handle_event(e)
-            elif e.type == Event.SCENE_CHANGE_EVENT:
-                manager.current_scene = manager.scenes[e.event_name]
-            else:
-                manager.current_scene.handle_event(e)
-        manager.update()
-        manager.render()
+        running = scene_manager.handle_events(beat_manager)
+        scene_manager.update()
+        scene_manager.render()
         pg.display.update()
-        clock.tick(240)
+        clock.tick()
